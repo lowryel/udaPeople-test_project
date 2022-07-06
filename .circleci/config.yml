@@ -13,7 +13,7 @@ jobs:
       - checkout
       - slack/notify:
           channel: D03NGPP0EN8 #channel
-          event: fail
+          event: always
           template: basic_fail_1
 
 
@@ -143,4 +143,3 @@ workflows:
           requires: [build-backend]
       - deploy:
           context: slack-secrets
-          requires: [test-frontend]
