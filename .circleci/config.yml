@@ -2,14 +2,13 @@ version: 2.1
 
 
 orbs: 
-  node: 'circleci/node:4.1'
   slack: circleci/slack@4.10.1
 
 
 jobs:
   deploy:
-    executor:
-      name: node/default
+    docker:
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - node/install-packages
