@@ -11,10 +11,6 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - node/install-packages
-      - run:
-          name: Slack notification
-          command: npm run deploy
       - slack/notify:
           channel: D03NGPP0EN8 #channel
           event: fail
