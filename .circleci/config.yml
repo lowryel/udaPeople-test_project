@@ -1,5 +1,24 @@
 version: 2.1
 
+commands:
+  destroy_environment:
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      # Add parameter here
+      id:
+        type: string
+    steps:
+      - run:
+          name: print-pipeline-id
+          command: echo << parameters.id >>
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+            # Your code here
+            aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
+            aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
+            # exit 1
 
 orbs: 
   slack: circleci/slack@4.10.1
@@ -134,6 +153,7 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - run: yum install -y tar gzip
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -144,37 +164,46 @@ jobs:
             --tags project=udapeople
             # exit 1
 
-# ansible-play\udaPeople-test_project\.circleci\files\backend.yml
-# ansible-play\udaPeople-test_project\.circleci\config.yml
-# ansible-play\udaPeople-test_project\.circleci\files\backend.yml
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --tags project=front-tag \
+              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
+              # exit 1
+
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            # Your code here
+            aws cloudformation list-stacks --query 'Reservations[*].Instances[*].PublicIpAddress' \--output text echo 'ansible_host={{ PublicIp }}' >> .circleci/roles/inventory
+            # exit 1
+
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - .circleci/ansible/inventory.txt
+
+
+      # Here's where you will add some code to rollback on failure
+      # - attach_workspace:
+      #     at: ~/
       # - run:
-      #     name: Ensure front-end infrastructure exist
-      #     command: |
-      #       aws cloudformation deploy \
-      #         --template-file .circleci/files/frontend.yml \
-      #         --tags project=front-tag \
-      #         --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-      #         --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
-      #         exit 1
-      # - run:
-      #     name: Add back-end ip to ansible inventory
       #     command: |
       #       # Your code here
-      #       aws cloudformation describe-stacks --query 'Reservations[*].Instances[*].PublicIpAddress' --output text echo 'ansible_host={{ PublicIp }}' >> .circleci/files/inventory
-      #       exit 1
-      # - persist_to_workspace:
-      #     root: ~/
-      #     paths:
-      #       - project/.circleci/ansible/inventory.txt
-      # Here's where you will add some code to rollback on failure
-      # if curl -s http://localhost:3000/healthcheck | grep -q '<h1>OK</h1>'
-      # then
-      #   echo "Front-end is up"
-      # else
-      #   echo "Front-end is down"
-      #   exit 1
-      # fi
-            
+      #       if curl -s --head $(cat ~/.circleci/ansible/inventory.txt):3000
+      #       then
+      #         echo "Front-end is up"
+      #       else
+      #         echo "Front-end is down"
+      #       fi
+      #         # exit 1
+      # - run:
+      #     command: destroy_environent
+      #     when: on_fail
+                  
 
 workflows:
   my-workflow:
