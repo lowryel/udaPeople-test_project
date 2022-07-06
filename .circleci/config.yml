@@ -12,6 +12,7 @@ jobs:
     steps:
       - checkout
       - slack/notify:
+          name: 'Job execution alert'
           channel: D03NGPP0EN8 #channel
           event: always
           template: basic_fail_1
@@ -31,7 +32,7 @@ jobs:
             cd frontend
             npm install
             npm run build
-            exit 1
+            # exit 1
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
