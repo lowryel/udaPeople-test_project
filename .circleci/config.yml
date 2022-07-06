@@ -2,19 +2,15 @@ version: 2.1
 
 
 orbs: 
-  node: 'circleci/node:4.1'
   slack: circleci/slack@4.10.1
 
 
 jobs:
   deploy:
-    executor:
-      name: node/default
+    docker:
+      - image: circleci/node:13.8.0
     steps:
       - checkout
-      - node/install-packages
-      - run:
-          command: npm run deploy
       - slack/notify:
           channel: D03NGPP0EN8 #channel
           event: fail
@@ -145,5 +141,5 @@ workflows:
           requires: [build-frontend]
       - scan-backend:
           requires: [build-backend]
-      - deploy
-          # context: slack-secrets
+      - deploy:
+          context: slack-secrets
