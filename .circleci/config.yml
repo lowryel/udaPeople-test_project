@@ -143,6 +143,34 @@ jobs:
             --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
             --tags project=udapeople
+            # exit 1
+      # - run:
+      #     name: Ensure front-end infrastructure exist
+      #     command: |
+      #       aws cloudformation deploy \
+      #         --template-file .circleci/files/frontend.yml \
+      #         --tags project=front-tag \
+      #         --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+      #         --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
+      #         exit 1
+      # - run:
+      #     name: Add back-end ip to ansible inventory
+      #     command: |
+      #       # Your code here
+      #       aws cloudformation describe-stacks --query 'Reservations[*].Instances[*].PublicIpAddress' --output text echo 'ansible_host={{ PublicIp }}' >> .circleci/files/inventory
+      #       exit 1
+      # - persist_to_workspace:
+      #     root: ~/
+      #     paths:
+      #       - project/.circleci/ansible/inventory.txt
+      # Here's where you will add some code to rollback on failure
+      # if curl -s http://localhost:3000/healthcheck | grep -q '<h1>OK</h1>'
+      # then
+      #   echo "Front-end is up"
+      # else
+      #   echo "Front-end is down"
+      #   exit 1
+      # fi
             
 
 workflows:
