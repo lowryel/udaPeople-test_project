@@ -2,7 +2,7 @@ version: 2.1
 
 
 orbs: 
-  node: 'circleci/node:13.8.0'
+  node: 'circleci/node:4.1.1'
   slack: circleci/slack@4.10.1
 
 
@@ -17,7 +17,7 @@ jobs:
           name: Slack notification
           command: npm run deploy
       - slack/notify:
-          channel: 03-cloud-devops #channel
+          channel: D03NGPP0EN8 #channel
           event: fail
           template: basic_fail_1
 
