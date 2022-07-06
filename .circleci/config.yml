@@ -12,7 +12,6 @@ jobs:
     steps:
       - checkout
       - slack/notify:
-          name: 'Job execution alert'
           channel: D03NGPP0EN8 #channel
           event: always
           template: basic_fail_1
