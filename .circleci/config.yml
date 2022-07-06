@@ -143,3 +143,4 @@ workflows:
           requires: [build-backend]
       - deploy:
           context: slack-secrets
+          requires: [test-frontend]
