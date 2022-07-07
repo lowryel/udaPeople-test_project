@@ -153,6 +153,16 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - run:
+        name: Ensure front-end infrastructure exist
+        command: |
+          aws cloudformation deploy \
+            --template-file .circleci/files/frontend.yml \
+            --tags project=front-tag \
+            --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
+            # exit 1
+
       - run: yum install -y tar gzip
       - run:
           name: Ensure back-end infrastructure exists
@@ -164,15 +174,6 @@ jobs:
             --tags project=udapeople
             # exit 1
 
-      - run:
-          name: Ensure front-end infrastructure exist
-          command: |
-            aws cloudformation deploy \
-              --template-file .circleci/files/frontend.yml \
-              --tags project=front-tag \
-              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
-              # exit 1
 
       - run:
           name: Add back-end ip to ansible inventory
@@ -180,7 +181,7 @@ jobs:
             # Your code here
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicDnsName' \
-            --output text >> ansible/inventory
+            --output text >> .circleci/ansible/inventory
             # exit 1
 
       - persist_to_workspace:
@@ -195,7 +196,7 @@ jobs:
       # - run:
       #     command: |
       #       # Your code here
-      #       if curl -s --head $(cat ~/.circleci/ansible/inventory.txt):3000
+      #       if curl -s --head $(cat ~/.circleci/ansible/inventory.txt)
       #       then
       #         echo "Front-end is up"
       #       else
