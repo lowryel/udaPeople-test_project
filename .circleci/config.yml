@@ -3,14 +3,8 @@ version: 2.1
 commands:
   destroy_environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    # parameters:
-      # Add parameter here
-      # id:
-      #   type: string
+
     steps:
-      # - run:
-      #     name: print-pipeline-id
-      #     command: echo << parameters.id >>
       - run:
           name: Destroy environments
           when: on_fail
@@ -167,21 +161,21 @@ jobs:
       - run:
           name: Ensure front-end infrastructure exist
           command: |
+            # Your code here
             aws cloudformation deploy \
-              --template-file .circleci/files/frontend.yml \
-              --tags project=front-tag \
-              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
-              exit 1
+            --template-file .circleci/files/frontend.yml \
+            --tags project=front-tag \
+            --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
+              # exit 1
 
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-
             # Your code here
-            aws ec2 describe-instances \
-            --query 'Reservations[*].Instances[*].PublicDnsName' \
-            --output text >> .circleci/ansible/inventory.txt
+            aws cloudformation \
+            list-exports --query "Exports[?Name=='${CIRCLE_WORKFLOW_ID}-PublicIp'].Value" \
+            --no-paginate --output text > .circleci/ansible/inventory.txt
             # exit 1
 
       - persist_to_workspace:
@@ -193,11 +187,45 @@ jobs:
       - destroy_environment
         # when: on_fail
           # exit 1
+  configure_infrastructure:
+    docker:
+      - image: python: 3.7.3-alpine3.16
+    steps:
+      - checkout
+      - add_ssh_key:
+          fingerprints: ["0d:42:f7:5c:da:67:b6:9c:d2:0e:3b:50:b2:56:7c:f1"]
+      - attach_workspace:
+          at: .circleci/ansible
+      - run:
+          name: Install dependencies (openssh)
+          command: |
+            apk add --update openssh # Install openssh
+      - run:
+          name: Install git
+          command: |
+            apk add --update git # Install git
 
+      - run:
+          name: Install dependencies (ansible)
+          command: |
+            apk add --update ansible # Install ansible
 
+      - run:
+          name: Run your playbook to configure server
+          command: |
+            apk add --update awscli # Install awscli
+      
+      - run: yum install -y tar gzip
 
-      # - attach_workspace:
-      #     at: ~/
+      - run:
+          name: Run your playbook to configure server
+          command: |
+            cd .circleci/ansible
+            ansible-playbook configure-server.yml -i inventory.txt
+      - destroy_environment
+        # when: on_fail
+
+      # - run: apk add --update curl
       # - run:
       #     command: |
       #       # Your code here
@@ -229,3 +257,5 @@ workflows:
       # - deploy:
       #     context: slack-secrets
       - deploy-infrastructure
+      # - configure_infrastructure:
+          # requires: [deploy-infrastructure]
