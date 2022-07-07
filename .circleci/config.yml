@@ -180,7 +180,7 @@ jobs:
             # Your code here
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicDnsName' \
-            --output text > ~/.circleci/ansible/inventory
+            --output text > .circleci/ansible/inventory
             # exit 1
 
       - persist_to_workspace:
