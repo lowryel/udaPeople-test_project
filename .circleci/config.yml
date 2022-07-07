@@ -3,14 +3,14 @@ version: 2.1
 commands:
   destroy_environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    parameters:
+    # parameters:
       # Add parameter here
-      id:
-        type: string
+      # id:
+      #   type: string
     steps:
-      - run:
-          name: print-pipeline-id
-          command: echo << parameters.id >>
+      # - run:
+      #     name: print-pipeline-id
+      #     command: echo << parameters.id >>
       - run:
           name: Destroy environments
           when: on_fail
@@ -190,8 +190,8 @@ jobs:
             - inventory.txt
 
       # Here's where you will add some code to rollback on failure
-      - destroy_environment:
-        when: on_fail
+      - destroy_environment
+        # when: on_fail
           # exit 1
 
 
