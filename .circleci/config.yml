@@ -178,7 +178,9 @@ jobs:
           name: Add back-end ip to ansible inventory
           command: |
             # Your code here
-            aws cloudformation list-stacks --query 'Reservations[*].Instances[*].PublicIpAddress' \--output text echo 'ansible_host={{ PublicIp }}' >> .circleci/ansible/inventory
+            aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicDnsName' \
+            --output text >> .circleci/ansible/inventory
             # exit 1
 
       - persist_to_workspace:

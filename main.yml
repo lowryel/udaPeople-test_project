@@ -6,3 +6,5 @@
   become_user: root
   roles:
   - setup
+
+# aws cloudformation deploy --template-file cloudfront.yml --stack-name udapeoples-front --parameter-overrides WorkflowID="udapeople-bucket-791408011508"
