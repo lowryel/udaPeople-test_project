@@ -177,10 +177,10 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-          cd ansible-play
-          cd udaPeople-test_project
-          cd .circleci
-          cd ansible
+            cd ansible-play
+            cd udaPeople-test_project
+            cd .circleci
+            cd ansible
 
             # Your code here
             aws ec2 describe-instances \
