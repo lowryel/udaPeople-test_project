@@ -211,7 +211,8 @@ jobs:
       - run:
           name: Run your playbook to configure server
           command: |
-            apk add --update awscli # Install awscli
+            apk --no-cache add py-pip
+            pip install awscli
       
       - run: yum install -y tar gzip
 
