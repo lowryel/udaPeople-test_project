@@ -283,5 +283,5 @@ workflows:
       # - deploy:
       #     context: slack-secrets
       - deploy-infrastructure
-      - configure_infrastructure:
-          requires: [deploy-infrastructure]
+      # - configure_infrastructure:
+      #     requires: [deploy-infrastructure]
