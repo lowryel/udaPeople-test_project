@@ -193,7 +193,7 @@ jobs:
       - image: python:3.7.3-alpine3.16
     steps:
       - checkout
-      - add_ssh_key:
+      - add_ssh_keys:
           fingerprints: ["0d:42:f7:5c:da:67:b6:9c:d2:0e:3b:50:b2:56:7c:f1"]
       - attach_workspace:
           at: .circleci/ansible
