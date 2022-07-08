@@ -172,11 +172,9 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            # Your code here
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --output text > .circleci/ansible/inventory
-            # exit 1
+            --output text >> .circleci/ansible/inventory
 
       - persist_to_workspace:
           root: .circleci/ansible
@@ -285,7 +283,7 @@ jobs:
           name: Get backend url
           command: |
             # your code here
-            export BACKEND_URL=$(aws cloudformation describe-stacks --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" --query 'Stacks[*].Outputs[*].OutputValue' --output text)
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL=${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
@@ -335,5 +333,6 @@ workflows:
       # - deploy:
       #     context: slack-secrets
       - deploy-infrastructure
-      # - configure_infrastructure:
-      #     requires: [deploy-infrastructure]
+      - configure_infrastructure:
+          requires: [deploy-infrastructure]
+
