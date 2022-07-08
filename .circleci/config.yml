@@ -173,7 +173,9 @@ jobs:
           name: Add back-end ip to ansible inventory
           command: |
             # Your code here
-            aws cloudformation describe-stacks --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \--query 'Stacks[*].Outputs[*].OutputValue' --output text >> .circleci/ansible/inventory
+            aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --output text > .circleci/ansible/inventory
             # exit 1
 
       - persist_to_workspace:
@@ -298,6 +300,8 @@ jobs:
             tar -czvf artifact "${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist "udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
 
+      - destroy_environment
+        # when: on_fail
 
       # - run: apk add --update curl
       # - run:
