@@ -180,7 +180,7 @@ jobs:
             # exit 1
 
       - persist_to_workspace:
-          root: ~
+          root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
 
