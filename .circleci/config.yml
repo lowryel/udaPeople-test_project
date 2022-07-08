@@ -213,8 +213,12 @@ jobs:
           command: |
             apk --no-cache add py-pip
             pip install awscli
-      
-      - run: yum install -y tar gzip
+            
+      - run: apt-get install yum
+      - run: 
+          name: Install tar and gzip
+          command: |
+            yum install -y tar gzip
 
       - run:
           name: Run your playbook to configure server
