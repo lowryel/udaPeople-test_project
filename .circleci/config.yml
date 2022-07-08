@@ -176,13 +176,13 @@ jobs:
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople" \
-              --output text >> ~/project/.circleci/ansible/inventory.txt
+              --output text >> .circleci/ansible/inventory.txt
             # exit 1
 
       - persist_to_workspace:
-          root: ~/
+          root: .circleci/ansible
           paths:
-            - project/.circleci/ansible/inventory.txt
+            - inventory.txt
 
       # Here's where you will add some code to rollback on failure
       - destroy_environment
@@ -196,7 +196,7 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["0d:42:f7:5c:da:67:b6:9c:d2:0e:3b:50:b2:56:7c:f1"]
       - attach_workspace:
-          at: ~/
+          at: .circleci/ansible
       - run:
           name: Install dependencies (openssh)
           command: |
@@ -245,8 +245,12 @@ jobs:
           name: Send migration results to memstash
           command: |
             # Your code here
-            curl -X POST -H "Content-Type: application/json" -d @migrations_dump.txt http://memstash:8080/migrations
-            exit 1
+            if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+            then
+              curl https://kdvb.io/Jze7137FJQmQJfQUGyUYaH/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+            fi
+
+            # exit 1
           # Here's where you will add some code to rollback on failure
       - destroy_environment
         # when: on_fail
