@@ -173,14 +173,13 @@ jobs:
           name: Add back-end ip to ansible inventory
           command: |
             # Your code here
-            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --output text >> .circleci/ansible/inventory
+            aws cloudformation describe-stacks --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \--query 'Stacks[*].Outputs[*].OutputValue' --output text >> .circleci/ansible/inventory
             # exit 1
 
       - persist_to_workspace:
           root: .circleci/ansible
           paths:
-            - inventory.txt
+            - inventory
 
       # Here's where you will add some code to rollback on failure
       - destroy_environment
@@ -252,6 +251,53 @@ jobs:
           # Here's where you will add some code to rollback on failure
       - destroy_environment
         # when: on_fail
+
+
+  deploy_frontend:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .circleci/ansible
+      - run:
+          name: Install dependencies (python)
+          command:
+            # Your code here
+            apk add --update python
+      - run:
+          name: Install dependencies (ansible)
+          command: |
+            # Your code here
+            apk add --update ansible
+      - run:
+          name: Install dependencies (awscli)
+          command: |
+            # Your code here
+            apk add --update awscli
+      - run:
+          name: Install dependencies (Node.js and NPM)
+          command: |
+            apt-get update && apt-get install -y nodejs npm
+      - run:
+          name: Get backend url
+          command: |
+            # your code here
+            export BACKEND_URL=$(aws cloudformation describe-stacks --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" --query 'Stacks[*].Outputs[*].OutputValue' --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "API_URL=${API_URL}"
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
+      - run:
+          name: Deploy frontend objects
+          command: |
+            # your code here
+            cd frontend
+            npm install
+            npm run build
+            tar -czvf artifact "${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist "udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
+
 
       # - run: apk add --update curl
       # - run:
