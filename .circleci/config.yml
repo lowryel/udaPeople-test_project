@@ -16,7 +16,7 @@ commands:
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
-    parameters:
+    # parameters:
       # Add parameter here     
     steps:
       - run:
@@ -24,12 +24,12 @@ commands:
           # Add when this will run
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-
+            if curl -s ${CIRCLE_WORKFLOW_ID} | grep -q "SUCCESS"; 
             SUCCESS = 1
             if(( $SUCCESS==1 )); 
             then
-            #  cd ~/project/backend
-            #  npm install
+             cd ~/project/backend
+             npm install
             #  Add revert code here. You can find this in the Getting Started section.
               exit 1
             fi
@@ -121,7 +121,6 @@ jobs:
             cd backend
             npm install
             npm run test
-            # exit 1
 
   scan-frontend:
     docker:
@@ -140,7 +139,6 @@ jobs:
             cd frontend
             npm install
             npm audit fix --audit-level=critical
-            # exit 1
   
   scan-backend:
     docker:
@@ -159,7 +157,6 @@ jobs:
             cd backend
             npm install
             npm audit fix --audit-level=critical
-            # exit 1
 
 
   deploy-infrastructure:
@@ -176,7 +173,6 @@ jobs:
             --template-file .circleci/files/backend.yml --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
             --tags project=udapeople
-            # exit 1
 
       - run:
           name: Ensure front-end infrastructure exist
@@ -187,9 +183,9 @@ jobs:
             --tags project=front-tag \
             --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
-            # exit 1
 
       - run:
+          no_output_timeout: 10s
           name: Add back-end ip to ansible inventory
           command: |
             cd .circleci/ansible
@@ -197,7 +193,6 @@ jobs:
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --filters "Name=tag:project,Values=udapeople" \
             --output text >> inventory
-          no_output_timeout: 10s
 
       - persist_to_workspace:
           root: .circleci/ansible
@@ -222,7 +217,7 @@ jobs:
           command: |
             apk add --update openssh # Install openssh
       - run:
-          name: Install git
+          name: Install dependencies (git)
           command: |
             apk add --update git # Install git
 
@@ -232,13 +227,13 @@ jobs:
             apk add --update ansible # Install ansible
 
       - run:
-          name: Run your playbook to configure server
+          name: Install dependencies (awscli)
           command: |
             apk --no-cache add py-pip
             pip install awscli
 
       - run: 
-          name: Install tar and gzip
+          name: Install dependencies (tar and gzip)
           command: |
             apk add --update tar gzip
 
@@ -277,6 +272,7 @@ jobs:
             # exit 1
           # Here's where you will add some code to rollback on failure
       - destroy_environment
+      - revert_migrations
         # when: on_fail
 
 
@@ -326,7 +322,6 @@ jobs:
             aws s3 cp dist "udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
 
       - destroy_environment
-        # when: on_fail
 
   deploy-backend:
     docker:
