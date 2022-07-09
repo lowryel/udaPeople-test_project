@@ -213,11 +213,12 @@ jobs:
           command: |
             apk --no-cache add py-pip
             pip install awscli
-            
-      - run: apt-get install yum
+
       - run: 
           name: Install tar and gzip
           command: |
+            apt update
+            apt install yum
             yum install -y tar gzip
 
       - run:
