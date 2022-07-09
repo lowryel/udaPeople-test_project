@@ -186,7 +186,7 @@ jobs:
           command: 
             rm -rf .circleci/ansible/inventory.txt
             touch .circleci/ansible/inventory.txt
-            echo "[webserver]" > .circleci/ansible/inventory.txt
+            echo "[webserver]" >> .circleci/ansible/inventory.txt
       - run:
           # no_output_timeout: 10s
           name: Update inventory with backend ip
@@ -198,11 +198,7 @@ jobs:
       - run:
           name: Check for Ip
           command:
-            if [ -z "$(cat .circleci/ansible/inventory.txt)" ];
-            then
-              echo "No ip found"
-              exit 1
-            fi
+            cat .circleci/ansible/inventory.txt
 
       - persist_to_workspace:
           root: .circleci/ansible
