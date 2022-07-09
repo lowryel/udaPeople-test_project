@@ -192,10 +192,12 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
+            cd .circleci/ansible
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --output text >> .circleci/ansible/inventory
-          no_output_timeout: 15s
+            --filters "Name=tag:project,Values=udapeople" \
+            --output text >> inventory
+          no_output_timeout: 10s
 
       - persist_to_workspace:
           root: .circleci/ansible
@@ -333,7 +335,6 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints: ["0d:42:f7:5c:da:67:b6:9c:d2:0e:3b:50:b2:56:7c:f1"]
       # attach workspace
