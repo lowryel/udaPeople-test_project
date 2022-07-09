@@ -195,6 +195,7 @@ jobs:
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --output text >> .circleci/ansible/inventory
+          no_output_timeout: 15s
 
       - persist_to_workspace:
           root: .circleci/ansible

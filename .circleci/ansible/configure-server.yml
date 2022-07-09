@@ -44,37 +44,37 @@
     # Add more env vars here
 
   roles:
-    # Your code here
-  # - name: "update apt packages."
-  #   become: true
-  #   apt:
-  #     update_cache: yes
+    Your code here
+  - name: "update apt packages."
+    become: true
+    apt:
+      update_cache: yes
 
-  # - name: "upgrade packages"
-  #   become: true
-  #   apt:
-  #     upgrade: yes
+  - name: "upgrade packages"
+    become: true
+    apt:
+      upgrade: yes
 
-  # - name: "Remove some dependences that are not required"
-  #   become: true
-  #   apt:
-  #     autoremove: yes
+  - name: "Remove some dependences that are not required"
+    become: true
+    apt:
+      autoremove: yes
 
-  # - name: "Install Node.js and NPM"
-  #   apt:
-  #     name:
-  #       - "nodejs"
-  #       - "npm"
-  #     state: latest
-  #     update_cache: yes
+  - name: "Install Node.js and NPM"
+    apt:
+      name:
+        - "nodejs"
+        - "npm"
+      state: latest
+      update_cache: yes
 
-  # - name: "Install pm2"
-  #   become: true
-  #   npm:
-  #     name: pm2
-  #     global: yes
-  #     production: yes
-  #     state: latest
+  - name: "Install pm2"
+    become: true
+    npm:
+      name: pm2
+      global: yes
+      production: yes
+      state: latest
 
     # - name: "creates directory"
     #   file:
