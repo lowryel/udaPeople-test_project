@@ -17,7 +17,7 @@
       # Your code here
       wait_for_connection:
         host: web
-        port: 22
+        # port: 22
         timeout: 600
         delay: 1
         state: started

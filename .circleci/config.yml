@@ -12,7 +12,6 @@ commands:
             # Your code here
             aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
             aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
-            # exit 1
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -169,30 +168,24 @@ jobs:
           name: Ensure back-end infrastructure exists
           command: |
             # Your code here
-            aws cloudformation deploy \
-            --template-file .circleci/files/backend.yml --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-            --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+            aws cloudformation deploy --template-file .circleci/files/backend.yml \
+            --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
             --tags project=udapeople
-
       - run:
           name: Ensure front-end infrastructure exist
           command: |
             # Your code here
-            aws cloudformation deploy \
-            --template-file .circleci/files/frontend.yml \
-            --tags project=front-tag \
+            aws cloudformation deploy --template-file .circleci/files/frontend.yml \
             --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-            --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
-
+            --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
+            --tags project=udapeople
       - run:
           no_output_timeout: 10s
           name: Add back-end ip to ansible inventory
           command: |
-            cd .circleci/ansible
-            aws ec2 describe-instances \
-            --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --filters "Name=tag:project,Values=udapeople" \
-            --output text >> inventory
+          aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' \
+          --output text >> .circleci/ansible/inventory.txt
 
       - persist_to_workspace:
           root: .circleci/ansible
@@ -202,7 +195,7 @@ jobs:
       # Here's where you will add some code to rollback on failure
       - destroy_environment
         # when: on_fail
-          # exit 1
+
   configure-infrastructure:
     docker:
       - image: python:3.10.5-alpine3.16
@@ -276,7 +269,7 @@ jobs:
         # when: on_fail
 
 
-  deploy_frontend:
+  deploy-frontend:
     docker:
       - image: amazon/aws-cli
     steps:
@@ -360,7 +353,8 @@ jobs:
             echo "Contents of the inventory file is ..."
             cat inventory
             ansible-playbook -i inventory deploy-backend.yml      
-      # Here's where you will add some code to rollback on failure 
+      # Here's where you will add some code to rollback on failure
+      - destroy_environment
 
       # - run: apk add --update curl
       # - run:
