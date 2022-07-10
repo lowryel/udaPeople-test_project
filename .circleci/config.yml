@@ -183,7 +183,7 @@ jobs:
       - persist_to_workspace:
           root: .circleci/ansible
           paths:
-            - inventory.txt
+            - .circleci/ansible/inventory.txt
 
       # Here's where you will add some code to rollback on failure
       - destroy_environment
@@ -247,10 +247,11 @@ jobs:
       - run:
           name: Send migration results to kvdb-backend
           command: |
-            # Your code here
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
               curl https://kvdb.io/Jze7137FJQmQJfQUGyUYaH/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+            else
+              echo "Migration failed"
             fi
 
           # Here's where you will add some code to rollback on failure
