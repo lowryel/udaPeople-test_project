@@ -229,7 +229,7 @@ jobs:
           name: Run your playbook to configure server
           command: |
             cd .circleci/ansible
-            ansible-playbook configure-server.yml -i inventory.txt
+            ansible-playbook -i inventory.txt configure-server.yml
       - destroy_environment
         # when: on_fail
 
@@ -275,6 +275,11 @@ jobs:
           name: Install dependencies (ansible)
           command: |
             apk add --update ansible
+      - run: 
+          name: Install tar and gzip
+          command: |
+            apk add --update tar gzip
+
       - run:
           name: Install dependencies (awscli)
           command: |
