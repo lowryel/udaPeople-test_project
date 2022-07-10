@@ -277,7 +277,7 @@ jobs:
           command: |
             apk add --update ansible
       - run: 
-          name: Install tar and gzip
+          name: Install dependences (tar and gzip)
           command: |
             apk add --update tar gzip
 
@@ -288,7 +288,7 @@ jobs:
       - run:
           name: Install dependencies (Node.js and NPM)
           command: |
-            apt-get update && apt-get install -y nodejs npm
+            apk add --update node npm
       - run:
           name: Get backend url
           command: |
@@ -322,7 +322,7 @@ jobs:
       - run:
           name: Install dependencies (Nodejs and NPM)
           command: |
-            apt-get update && apt-get install -y nodejs npm
+            apk add --update node npm
       - run:
           name: Install dependencies (python)
           command: |
@@ -331,6 +331,10 @@ jobs:
           name: Install dependencies (ansible)
           command: |
             apk add --update ansible
+      - run:
+          name: Install dependences (tar and gzip)
+          command: |
+            apk add --update tar gzip
       - run:
           name: Deploy backend
           command: |
