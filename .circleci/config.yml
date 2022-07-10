@@ -266,6 +266,7 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - run: yum install -y tar gzip
       - attach_workspace:
           at: .circleci/ansible
       - run:
@@ -288,7 +289,7 @@ jobs:
       - run:
           name: Install dependencies (Node.js and NPM)
           command: |
-            apk add --update node npm
+            apk add --update nodejs npm
       - run:
           name: Get backend url
           command: |
@@ -298,6 +299,7 @@ jobs:
             echo "API_URL=${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
+
       - run:
           name: Deploy frontend objects
           command: |
@@ -322,7 +324,7 @@ jobs:
       - run:
           name: Install dependencies (Nodejs and NPM)
           command: |
-            apk add --update node npm
+            apk add --update nodejs npm
       - run:
           name: Install dependencies (python)
           command: |
