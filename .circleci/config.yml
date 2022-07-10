@@ -247,7 +247,7 @@ jobs:
             cd backend
             npm cache clean -force
             npm install
-            npm run migrations --force > migrations_dump.txt
+            npm run migrations > migrations_dump.txt
       - run:
           name: Send migration results to kvdb-backend
           command: |
