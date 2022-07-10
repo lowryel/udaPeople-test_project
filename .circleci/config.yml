@@ -13,7 +13,7 @@ commands:
             aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
             aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
 
-  revert-migrations:
+  revert_migrations:
     description: Revert the last migration if successfully run in the current workflow.
     # parameters:
       # Add parameter here     
@@ -63,7 +63,6 @@ jobs:
             cd frontend
             npm install
             npm run build
-            # exit 1
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
@@ -82,15 +81,14 @@ jobs:
             cd backend
             npm install
             npm run build
-            # exit 1
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-build
 
   test-frontend:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      # Checkout code from git
-      # Restore from cache
-      # Your job code here
       - checkout
       - restore_cache:
           keys: [frontend-build]
@@ -101,15 +99,11 @@ jobs:
             cd frontend
             npm install
             npm run test
-            # exit 1
 
   test-backend:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      # Checkout code from git
-      # Restore from cache
-      # Your job code here
       - checkout
       - restore_cache:
           keys: [backend-build]
@@ -125,9 +119,6 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      # Checkout code from git
-      # Restore from cache
-      # Your job code here
       - checkout
       - restore_cache:
           keys: [frontend-build]
@@ -143,9 +134,6 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      # Checkout code from git
-      # Restore from cache
-      # Your job code here
       - checkout
       - restore_cache:
           keys: [backend-build]
@@ -167,7 +155,6 @@ jobs:
       - run:
           name: Ensure back-end infrastructure exists
           command: |
-            # Your code here
             aws cloudformation deploy --template-file .circleci/files/backend.yml \
             --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
@@ -175,18 +162,11 @@ jobs:
       - run:
           name: Ensure front-end infrastructure exist
           command: |
-            # Your code here
             aws cloudformation deploy --template-file .circleci/files/frontend.yml \
             --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
             --tags project=udapeople
 
-      - run:
-          name: Create Inventory
-          command: 
-            rm -rf .circleci/ansible/inventory.txt
-            touch .circleci/ansible/inventory.txt
-            echo "[webserver]" >> .circleci/ansible/inventory.txt
       - run:
           # no_output_timeout: 10s
           name: Update inventory with backend ip
@@ -214,10 +194,10 @@ jobs:
       - image: python:3.10.5-alpine3.16
     steps:
       - checkout
-      - add_ssh_keys:
-          fingerprints: ["0d:42:f7:5c:da:67:b6:9c:d2:0e:3b:50:b2:56:7c:f1"]
       - attach_workspace:
           at: .circleci/ansible
+      - add_ssh_keys:
+          fingerprints: ["0d:42:f7:5c:da:67:b6:9c:d2:0e:3b:50:b2:56:7c:f1"]
       - run:
           name: Install dependencies (openssh)
           command: |
@@ -251,7 +231,7 @@ jobs:
       - destroy_environment
         # when: on_fail
 
-  run_migrations:
+  run-migrations:
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -261,21 +241,18 @@ jobs:
       - run:
           name: Run migrations
           command: |
-            # Your code here
             cd backend
             npm install
             npm run migrate > migrations_dump.txt
-            # exit 1
       - run:
-          name: Send migration results to kdvb-backend
+          name: Send migration results to kvdb-backend
           command: |
             # Your code here
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              curl https://kdvb.io/Jze7137FJQmQJfQUGyUYaH/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+              curl https://kvdb.io/Jze7137FJQmQJfQUGyUYaH/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
 
-            # exit 1
           # Here's where you will add some code to rollback on failure
       - destroy_environment
       - revert_migrations
@@ -292,17 +269,14 @@ jobs:
       - run:
           name: Install dependencies (python)
           command:
-            # Your code here
             apk add --update python
       - run:
           name: Install dependencies (ansible)
           command: |
-            # Your code here
             apk add --update ansible
       - run:
           name: Install dependencies (awscli)
           command: |
-            # Your code here
             apk add --update awscli
       - run:
           name: Install dependencies (Node.js and NPM)
@@ -311,7 +285,6 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            # your code here
             export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL=${API_URL}"
@@ -320,7 +293,6 @@ jobs:
       - run:
           name: Deploy frontend objects
           command: |
-            # your code here
             cd frontend
             npm install
             npm run build
@@ -407,4 +379,6 @@ workflows:
           #     only: [test-feature-branch]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
 

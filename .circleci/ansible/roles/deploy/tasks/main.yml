@@ -1,0 +1,25 @@
+- name: "install tar and gzip"
+
+
+- name: "install npm"
+    become: true
+    npm:
+      name: "npm"
+      global: yes
+      production: yes
+      state: latest
+      update_cache: yes
+
+- name: "install pm2"
+    become: true
+    npm:
+      name: pm2
+      global: yes
+      production: yes
+      state: latest
+      update_cache: yes
+    
+    npm install
+    pm2 stop default
+    pm2 start npm --start
+
