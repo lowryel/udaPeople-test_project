@@ -23,7 +23,7 @@ commands:
           # Add when this will run
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            curl -s ${CIRCLE_WORKFLOW_ID} | grep -q "SUCCESS"; 
+            if curl -s ${CIRCLE_WORKFLOW_ID} | grep -q "SUCCESS"; 
             SUCCESS = 1
             if(( $SUCCESS==1 )); 
             then
@@ -255,8 +255,6 @@ jobs:
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
               curl https://kvdb.io/Jze7137FJQmQJfQUGyUYaH/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
-            else
-              # - revert_migrations
             fi
           # Here's where you will add some code to rollback on failure
       - destroy_environment
@@ -344,9 +342,11 @@ jobs:
             cd .circleci/ansible
             echo "Contents of the inventory file is ..."
             cat inventory
-            ansible-playbook -i inventory deploy-backend.yml      
+            ansible-playbook -i inventory deploy-backend.yml
+
       # Here's where you will add some code to rollback on failure
       - destroy_environment
+      - revert_migrations
 
       # - run: apk add --update curl
       # - run:
@@ -359,9 +359,9 @@ jobs:
       #         echo "Front-end is down"
       #       fi
       #         # exit 1
-      # - run:
-      #     command: destroy_environent
-      #     when: on_fail
+      # 
+      # - destroy_environent
+    
                   
 
 workflows:
@@ -388,4 +388,9 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
+
 
