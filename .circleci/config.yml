@@ -272,7 +272,7 @@ jobs:
       - run:
           name: Install dependencies (python)
           command:
-            apk add --update python
+            pip install python
       - run:
           name: Install dependencies (ansible)
           command: |
@@ -326,17 +326,14 @@ jobs:
           command: |
             apk add --update nodejs npm
       - run:
-          name: Install dependencies (python)
-          command: |
-            apk add --update python
-      - run:
           name: Install dependencies (ansible)
           command: |
             apk add --update ansible
       - run:
-          name: Install dependences (tar and gzip)
+          name: Install dependencies (python)
           command: |
-            apk add --update tar gzip
+            pip install python
+      - run: yum install -y tar gzip
       - run:
           name: Deploy backend
           command: |
