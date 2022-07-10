@@ -173,7 +173,7 @@ jobs:
           # no_output_timeout: 10s
           name: Update inventory with backend ip
           command: |
-            echo "[web]" >> .circleci/ansible/inventory.txt
+            # echo "[web]" >> .circleci/ansible/inventory.txt
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --output text >> .circleci/ansible/inventory.txt
@@ -187,7 +187,7 @@ jobs:
           root: .circleci/ansible
           paths:
             - inventory.txt
-
+            
       # Here's where you will add some code to rollback on failure
       - destroy_environment
         # when: on_fail
