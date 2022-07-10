@@ -274,7 +274,7 @@ jobs:
       - run:
           name: Install dependencies (python)
           command:
-            pip install python3
+            apk add --update python3
       - run:
           name: Install dependencies (ansible)
           command: |
@@ -295,6 +295,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
+            cat inventory.txt
             export BACKEND_IP=$(aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
             export API_URL="http://${BACKEND_IP}:3030"
@@ -331,7 +332,10 @@ jobs:
           name: Install dependencies (ansible)
           command: |
             apk add --update ansible
-      - run: yum install -y tar gzip
+      - run: 
+          name: Install dependences (tar and gzip)
+          command: |
+            apk add --update tar gzip
       - run:
           name: Deploy backend
           command: |
