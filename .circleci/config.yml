@@ -246,6 +246,7 @@ jobs:
           command: |
             cd backend
             npm cache clean -force
+            rm -rf node_modules
             npm install
             npm run migrations > migrations_dump.txt
       - run:
@@ -255,9 +256,8 @@ jobs:
             then
               curl https://kvdb.io/Jze7137FJQmQJfQUGyUYaH/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             else
-              - revert_migrations
+              # - revert_migrations
             fi
-
           # Here's where you will add some code to rollback on failure
       - destroy_environment
         # when: on_fail
@@ -294,7 +294,8 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
+            export BACKEND_IP=$(aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL=${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
