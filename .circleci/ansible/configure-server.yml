@@ -19,8 +19,6 @@
       wait_for_connection:
         timeout: 600
         delay: 1
-        state: started
-        validate_certs: false
 
 
     - name: "install python for Ansible."
