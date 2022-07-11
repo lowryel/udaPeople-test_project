@@ -26,9 +26,9 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            echo "Reverting migrations" <<parameters.workflow_id>>
+            echo "Reverting migrations" << parameters.workflow_id >>
             SUCCESS = $(curl --insecure \
-            https://kvdb.io/Jze7137FJQmQJfQUGyUYaH/migration_<<parameters.workflow_id>>)
+            https://kvdb.io/Jze7137FJQmQJfQUGyUYaH/migration_<< parameters.workflow_id >>)
             if(( $SUCCESS==1 )); 
             then
               cd ~/project/backend
@@ -279,7 +279,7 @@ jobs:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
         # when: on_fail
       - revert_migrations:
-          workflow_id: ${parameters.workflow_id}
+          workflow_id: << parameters.workflow_id >>
 
 
   deploy-frontend:
@@ -292,7 +292,6 @@ jobs:
       - run: 
           name: Install Node.js and NPM
           command: |
-            update curl
             install nodejs npm
       - run:
           name: Install python
@@ -330,7 +329,7 @@ jobs:
       - destroy_environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert_migrations:
-          workflow_id: ${parameters.workflow_id}
+          workflow_id: << parameters.workflow_id >>
         # when: on_fail
 
   deploy-backend:
@@ -342,7 +341,7 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["0d:42:f7:5c:da:67:b6:9c:d2:0e:3b:50:b2:56:7c:f1"]
       - run: apk add --update tar gzip
-
+      - run: apk add --update curl
       - attach_workspace:
           at: .circleci/ansible
       - run:
@@ -358,6 +357,10 @@ jobs:
           name: Install dependences (Nodejs and NPM)
           command: |
             apk add --update nodejs npm
+      - run:
+          name: Install dependencies (python)
+          command: |
+            apk add --update python3
 
       - run:
           name: Deploy backend
@@ -380,7 +383,7 @@ jobs:
       - destroy_environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert_migrations:
-          workflow_id: ${parameters.workflow_id}
+          workflow_id: << parameters.workflow_id >>
   
   smoke-test:
     docker:
