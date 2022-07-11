@@ -292,11 +292,11 @@ jobs:
       - run: 
           name: Install Node.js and NPM
           command: |
-            install nodejs npm
+            apk add --update nodejs npm
       - run:
           name: Install python
           command: |
-            install python3
+            pip install python3
 
 
       - attach_workspace:
@@ -316,7 +316,7 @@ jobs:
           name: Deploy frontend objects
           command: |
             cd frontend
-            cat .env
+            touch .env
             npm install
             npm run build
             tar -czvf artifact "${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
