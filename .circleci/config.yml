@@ -4,7 +4,7 @@ commands:
   destroy_environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
-      id:
+      workflow_id:
         type: string
     steps:
       - run:
@@ -12,22 +12,22 @@ commands:
           when: on_fail
           command: |
             # Your code here
-            echo "Destroying" <<parameters.id>>
+            echo "Destroying" <<parameters.workflow_id>>
             aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
             aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
 
   revert_migrations:
     description: Revert the last migration if successfully run in the current workflow.
-    # parameters:
-    #   id:
-    #     type: string 
+    parameters:
+      workflow_id:
+        type: string 
     steps:
       - run:
           name: Revert migrations
           when: on_fail
           command: |
             SUCCESS = $(curl --insecure \
-            https://kvdb.io/Jze7137FJQmQJfQUGyUYaH/migration_${CIRCLE_WORKFLOW_ID:0:7})
+            https://kvdb.io/Jze7137FJQmQJfQUGyUYaH/migration_<<parameters.workflow_id>>)
             if(( $SUCCESS==1 )); 
             then
               cd ~/project/backend
@@ -192,7 +192,7 @@ jobs:
             
       # Here's where you will add some code to rollback on failure
       - destroy_environment:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
         # when: on_fail
 
   configure-infrastructure:
@@ -239,7 +239,7 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy_environment:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
         # when: on_fail
 
   run-migrations:
@@ -273,7 +273,7 @@ jobs:
             - project/backend
           # Here's where you will add some code to rollback on failure
       - destroy_environment:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
         # when: on_fail
       - revert_migrations
 
@@ -292,7 +292,11 @@ jobs:
           name: Install Node.js and NPM
           command: |
             update curl
-            apk add --update nodejs npm
+            install nodejs npm
+      - run:
+          name: Install python
+          command: |
+            install python3
 
       - attach_workspace:
           at: .circleci/ansible
@@ -318,7 +322,8 @@ jobs:
             aws s3 sync dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --delete
 
       - destroy_environment:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert_migrations
         # when: on_fail
 
   deploy-backend:
@@ -366,7 +371,7 @@ jobs:
 
       # Here's where you will add some code to rollback on failure
       - destroy_environment:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert_migrations
   
   smoke-test:
@@ -391,8 +396,8 @@ jobs:
             --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
-            # curl "${API_URL}/api/status"
-            if curl -s http://google.com
+            if curl "${API_URL}/api/status"
+            # if curl -s http://google.com
             then
                 return 0
             else
