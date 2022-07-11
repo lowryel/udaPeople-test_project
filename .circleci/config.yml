@@ -348,46 +348,46 @@ jobs:
       - revert_migrations:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
   
-    smoke-test:
-      docker:
-        # Lightweight Docker image
-        - image: python:3.10-alpine3.16
-      steps:
-        - checkout
-        - run:
-            name: Install dependencies
-            command: |
-              apk add --update --no-cache curl aws-cli tar gzip nodejs npm
-        - attach_workspace:
-            at: ~/
-        - run:
-            name: Backend smoke test.
-            command: |
-              export BACKEND_IP=$(aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters Name=tag:aws:cloudformation:stack-name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
-              --output text)
-              export API_URL="http://${BACKEND_IP}:3030"
-              echo "${API_URL}"
-              # curl "${API_URL}/api/status"
-              if curl -s http://google.com
-              then
-                  return 0
-              else
-                  return 1
-              fi
-        - run:
-            name: Frontend smoke test.
-            command: |
-              export URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-west-2.amazonaws.com/#/employees"            
-              echo $URL
-              if curl ${URL} | grep "Welcome"
-              then
-                # Change this to 0 after the job fails
+  smoke-test:
+    docker:
+      # Lightweight Docker image
+      - image: python:3.10-alpine3.16
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update --no-cache curl aws-cli tar gzip nodejs npm
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Backend smoke test.
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --filters Name=tag:aws:cloudformation:stack-name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
+            --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+            # curl "${API_URL}/api/status"
+            if curl -s http://google.com
+            then
                 return 0
-              else
+            else
                 return 1
-              fi
+            fi
+      - run:
+          name: Frontend smoke test.
+          command: |
+            export URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-west-2.amazonaws.com/#/employees"            
+            echo $URL
+            if curl ${URL} | grep "Welcome"
+            then
+              # Change this to 0 after the job fails
+              return 0
+            else
+              return 1
+            fi
 
       # - run: apk add --update curl
       # - run:
