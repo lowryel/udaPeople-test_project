@@ -245,8 +245,10 @@ jobs:
           name: Run migrations
           command: |
             cd backend
+            npm cache clean --force
+            rm -rf node_modules
             npm install
-            npm run migrations -force > migrations_dump.txt
+            npm run migrations > migrations_dump.txt
       - run:
           name: Send migration results to kvdb-backend
           command: |
@@ -265,7 +267,7 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: python:3.10.5-alpine3.16
+      - image: amazon/aws-cli
     steps:
       - checkout
       - run: yum install -y tar gzip
@@ -274,24 +276,24 @@ jobs:
       - run:
           name: Install dependencies (python)
           command:
-            apk add --update python
+            yum install python
       - run:
           name: Install dependencies (ansible)
           command: |
-            apk add --update ansible
-      - run: 
-          name: Install dependences (tar and gzip)
-          command: |
-            apk add --update tar gzip
+            yum install ansible -y
+      # - run: 
+      #     name: Install dependences (tar and gzip)
+      #     command: |
+      #       yum install tar gzip
 
       - run:
           name: Install dependencies (awscli)
           command: |
-            apk add --update awscli
+            yum install awscli
       - run:
           name: Install dependencies (Node.js and NPM)
           command: |
-            apk add --update nodejs npm
+            yum install -y nodejs npm
       - run:
           name: Get backend url
           command: |
@@ -351,7 +353,7 @@ jobs:
 
       # Here's where you will add some code to rollback on failure
       - destroy_environment
-      - revert_migrations
+      # - revert_migrations
 
       # - run: apk add --update curl
       # - run:
@@ -393,9 +395,9 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
+      # - deploy-frontend:
+      #     requires: [run-migrations]
+      # - deploy-backend:
+      #     requires: [run-migrations]
 
 
