@@ -3,9 +3,12 @@ version: 2.1
 commands:
   destroy_environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-
+    parameters:
+      id:
+        type: string
     steps:
       - run:
+          echo "Destroying" <<parameters.id>>
           name: Destroy environments
           when: on_fail
           command: |
@@ -16,23 +19,24 @@ commands:
   revert_migrations:
     description: Revert the last migration if successfully run in the current workflow.
     # parameters:
-      # Add parameter here     
+    #   id:
+    #     type: string   
     steps:
       - run:
           name: Revert migrations
           # Add when this will run
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            if curl ${CIRCLE_WORKFLOW_ID} | grep -q "SUCCESS"; 
-            SUCCESS = 1
+            SUCCESS = $(curl --insecure https://kvdb.io/Jze7137FJQmQJfQUGyUYaH/migration_${CIRCLE_WORKFLOW_ID:0:7})
             if(( $SUCCESS==1 )); 
             then
               cd ~/project/backend
               npm install
-            else
-            #  Add revert code here. You can find this in the Getting Started section.
-              cd backend
               npm run migrations:revert
+            # else
+            #  Add revert code here. You can find this in the Getting Started section.
+              # cd backend
+              # npm run migrations:revert
             fi
 
 orbs: 
@@ -263,6 +267,7 @@ jobs:
           # Here's where you will add some code to rollback on failure
       - destroy_environment
         # when: on_fail
+      - revert_migrations
 
 
   deploy-frontend:
@@ -309,6 +314,7 @@ jobs:
           name: Deploy frontend objects
           command: |
             cd frontend
+            cat .env
             npm install
             npm run build
             tar -czvf artifact "${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
@@ -353,7 +359,7 @@ jobs:
 
       # Here's where you will add some code to rollback on failure
       - destroy_environment
-      # - revert_migrations
+      - revert_migrations
 
       # - run: apk add --update curl
       # - run:
@@ -395,9 +401,9 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
-      # - deploy-frontend:
-      #     requires: [run-migrations]
-      # - deploy-backend:
-      #     requires: [run-migrations]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
 
 
