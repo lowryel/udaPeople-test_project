@@ -278,26 +278,17 @@ jobs:
       - attach_workspace:
           at: .circleci/ansible
       - run:
-          name: Install dependencies (python)
+          name: Install dependencies
           command:
             yum install python
-      - run:
-          name: Install dependencies (ansible)
-          command: |
-            yum install ansible -y
-      # - run: 
-      #     name: Install dependences (tar and gzip)
-      #     command: |
-      #       yum install tar gzip
-
+            yum update -y
+           yum install -y tar gzip
+           curl -sL https://rpm.nodesource.com/setup_13.x |  bash -
+           yum install -y nodejs npm
       - run:
           name: Install dependencies (awscli)
           command: |
             yum install awscli
-      - run:
-          name: Install dependencies (Node.js and NPM)
-          command: |
-            yum install -y nodejs npm
       - run:
           name: Get backend url
           command: |
@@ -317,7 +308,7 @@ jobs:
             npm install
             npm run build
             tar -czvf artifact "${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist "udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
 
       - destroy_environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
