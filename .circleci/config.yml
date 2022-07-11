@@ -265,18 +265,29 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: amazon/aws-cli
+      - image: python:3.10.5-alpine3.16
     steps:
       - checkout
       - run: yum install -y tar gzip
       - attach_workspace:
           at: .circleci/ansible
+      - run:
+          name: Install dependencies (python)
+          command:
+            apk add --update python
+      - run:
+          name: Install dependencies (ansible)
+          command: |
+            apk add --update ansible
+      - run: 
+          name: Install dependences (tar and gzip)
+          command: |
+            apk add --update tar gzip
 
       - run:
           name: Install dependencies (awscli)
           command: |
-            apk --no-cache add py-pip
-            pip install awscli
+            apk add --update awscli
       - run:
           name: Install dependencies (Node.js and NPM)
           command: |
