@@ -279,7 +279,7 @@ jobs:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
         # when: on_fail
       - revert_migrations:
-          workflow_id: << parameters.workflow_id >>
+          workflow_id: ${parameters.workflow_id}
 
 
   deploy-frontend:
@@ -329,7 +329,7 @@ jobs:
       - destroy_environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert_migrations:
-          workflow_id: << parameters.workflow_id >>
+          workflow_id: ${parameters.workflow_id}
         # when: on_fail
 
   deploy-backend:
@@ -383,7 +383,7 @@ jobs:
       - destroy_environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert_migrations:
-          workflow_id: << parameters.workflow_id >>
+          workflow_id: ${parameters.workflow_id}
   
   smoke-test:
     docker:
