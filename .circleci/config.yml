@@ -26,6 +26,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
+            echo "Reverting migrations" <<parameters.workflow_id>>
             SUCCESS = $(curl --insecure \
             https://kvdb.io/Jze7137FJQmQJfQUGyUYaH/migration_<<parameters.workflow_id>>)
             if(( $SUCCESS==1 )); 
@@ -153,9 +154,6 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - slack/notify:
-          channel: D03NGPP0EN8 #channel
-          event: fail
       - run: yum install -y tar gzip
       - run:
           name: Ensure back-end infrastructure exists
@@ -190,6 +188,9 @@ jobs:
           paths:
             - inventory.txt
             
+      - slack/notify:
+          channel: D03NGPP0EN8 #channel
+          event: fail
       # Here's where you will add some code to rollback on failure
       - destroy_environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
@@ -200,9 +201,6 @@ jobs:
       - image: python:3.10.5-alpine3.16
     steps:
       - checkout
-      - slack/notify:
-          channel: D03NGPP0EN8 #channel
-          event: fail
       - attach_workspace:
           at: .circleci/ansible
       - add_ssh_keys:
@@ -238,6 +236,10 @@ jobs:
             cd .circleci/ansible
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
+      - slack/notify:
+          channel: D03NGPP0EN8 #channel
+          event: fail
+
       - destroy_environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
         # when: on_fail
@@ -247,9 +249,6 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - slack/notify:
-          channel: D03NGPP0EN8 #channel
-          event: fail
       - restore_cache:
           keys: [backend-build]
       - attach_workspace:
@@ -271,6 +270,10 @@ jobs:
           root: ~/
           paths:
             - project/backend
+
+      - slack/notify:
+          channel: D03NGPP0EN8 #channel
+          event: fail
           # Here's where you will add some code to rollback on failure
       - destroy_environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
@@ -283,9 +286,6 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - slack/notify:
-          channel: D03NGPP0EN8 #channel
-          event: fail
       - run: yum install -y tar gzip
 
       - run: 
@@ -297,6 +297,7 @@ jobs:
           name: Install python
           command: |
             install python3
+
 
       - attach_workspace:
           at: .circleci/ansible
@@ -321,6 +322,10 @@ jobs:
             tar -czvf artifact "${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 sync dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --delete
 
+      - slack/notify:
+          channel: D03NGPP0EN8 #channel
+          event: fail
+
       - destroy_environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert_migrations
@@ -332,9 +337,6 @@ jobs:
       - image: python:3.10.5-alpine3.16
     steps:
       - checkout
-      - slack/notify:
-          channel: D03NGPP0EN8 #channel
-          event: fail
       - add_ssh_keys:
           fingerprints: ["0d:42:f7:5c:da:67:b6:9c:d2:0e:3b:50:b2:56:7c:f1"]
       - run: apk add --update tar gzip
@@ -369,6 +371,9 @@ jobs:
             ls -l .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
 
+      - slack/notify:
+          channel: D03NGPP0EN8 #channel
+          event: fail
       # Here's where you will add some code to rollback on failure
       - destroy_environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
