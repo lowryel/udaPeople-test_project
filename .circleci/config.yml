@@ -153,6 +153,9 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - slack/notify:
+          channel: D03NGPP0EN8 #channel
+          event: fail
       - run: yum install -y tar gzip
       - run:
           name: Ensure back-end infrastructure exists
@@ -197,6 +200,9 @@ jobs:
       - image: python:3.10.5-alpine3.16
     steps:
       - checkout
+      - slack/notify:
+          channel: D03NGPP0EN8 #channel
+          event: fail
       - attach_workspace:
           at: .circleci/ansible
       - add_ssh_keys:
@@ -241,6 +247,9 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - slack/notify:
+          channel: D03NGPP0EN8 #channel
+          event: fail
       - restore_cache:
           keys: [backend-build]
       - attach_workspace:
@@ -274,17 +283,16 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command:
-            yum update -y
+      - slack/notify:
+          channel: D03NGPP0EN8 #channel
+          event: fail
       - run: yum install -y tar gzip
 
       - run: 
           name: Install Node.js and NPM
           command: |
             update curl
-            yum install -y nodejs npm
+            apk add --update nodejs npm
 
       - attach_workspace:
           at: .circleci/ansible
@@ -307,7 +315,7 @@ jobs:
             npm install
             npm run build
             tar -czvf artifact "${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            aws s3 sync dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --delete
 
       - destroy_environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
@@ -319,9 +327,12 @@ jobs:
       - image: python:3.10.5-alpine3.16
     steps:
       - checkout
+      - slack/notify:
+          channel: D03NGPP0EN8 #channel
+          event: fail
       - add_ssh_keys:
           fingerprints: ["0d:42:f7:5c:da:67:b6:9c:d2:0e:3b:50:b2:56:7c:f1"]
-      - run: yum update -y tar gzip
+      - run: apk add --update tar gzip
 
       - attach_workspace:
           at: .circleci/ansible
@@ -337,7 +348,7 @@ jobs:
       - run: 
           name: Install dependences (Nodejs and NPM)
           command: |
-            yum install -y nodejs npm
+            apk add --update nodejs npm
 
       - run:
           name: Deploy backend
@@ -367,7 +378,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update --no-cache curl aws-cli tar gzip nodejs npm
+            apk add --update --no-cache curl aws-cli nodejs npm
+      - run: yum install -y tar gzip
       - attach_workspace:
           at: ~/
       - run:
