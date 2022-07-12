@@ -29,7 +29,7 @@ commands:
             echo "Reverting migrations" ${CIRCLE_WORKFLOW_ID:0:7}
             SUCCESS = $(curl --insecure \
             https://kvdb.io/Jze7137FJQmQJfQUGyUYaH/migration_${CIRCLE_WORKFLOW_ID:0:7})
-            if(( $SUCCESS==1 )); 
+            if(( $SUCCESS==0 )); 
             then
               cd ~/project/backend
               npm install
@@ -288,13 +288,20 @@ jobs:
     steps:
       - checkout
       - run: yum install -y tar gzip
+      - run:
+          name: Install git
+          command: |
+            apk add --update git # Install git
 
-      - run: yum install -y nodejs npm
+      - run: 
+          name: Install Node.js and NPM
+          command: |
+            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+            apk add --update npm
       - run:
           name: Install python
           command: |
             pip install python3
-
 
       - attach_workspace:
           at: .circleci/ansible
@@ -350,6 +357,11 @@ jobs:
           command: |
             apk --no-cache add py-pip
             pip install awscli
+      - run:
+          name: Install git
+          command: |
+            apk add --update git # Install git
+
       - run: 
           name: Install dependences (Nodejs and NPM)
           command: |
@@ -362,8 +374,9 @@ jobs:
       - run:
           name: Deploy backend
           command: |
+            echo "Running backend ..."
             cd backend
-            npm i
+            # npm i
             npm run build
             cd ..
             tar -C backend -czvf artifact.tar.gz .
