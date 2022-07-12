@@ -373,7 +373,7 @@ jobs:
       - run: 
           name: Install dependences (Nodejs and NPM)
           command: |
-            curl -o- http://bit.ly/nvm-c | sh
+            apk add nodejs:13.8.0
             apk add --update npm
       - run:
           name: Install dependencies (python)
