@@ -373,7 +373,7 @@ jobs:
       - run: 
           name: Install dependences (Nodejs13x and NPM)
           command: |
-            apk add --upgrade nodejs13 npm
+            apk add --upgrade nodejs13.8.0 npm
             # apk add --update 
       - run:
           name: Install dependencies (python)
