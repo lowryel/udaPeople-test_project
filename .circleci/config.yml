@@ -288,16 +288,11 @@ jobs:
     steps:
       - checkout
       - run: yum install -y tar gzip
-      - run:
-          name: Install git
-          command: |
-            apk add --update git # Install git
 
       - run: 
           name: Install Node.js and NPM
           command: |
             curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
-            apk add --update npm
       - run:
           name: Install python
           command: |
@@ -376,7 +371,7 @@ jobs:
           command: |
             echo "Running backend ..."
             cd backend
-            # npm i
+            npm install
             npm run build
             cd ..
             tar -C backend -czvf artifact.tar.gz .
