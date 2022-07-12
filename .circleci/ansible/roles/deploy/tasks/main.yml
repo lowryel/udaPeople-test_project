@@ -17,9 +17,8 @@
 - name: "Install Node.js and NPM"
   apt:
     name:
-      - "nodejs"
       - "npm"
-    state: latest
+    state: present
     update_cache: yes
 
 - name: "Install pm2"
@@ -29,6 +28,22 @@
     global: yes
     production: yes
     state: latest
+
+- name: "Add nodejs apt key"
+  apt_key:
+    url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+    state: present
+
+- name: "Add nodejs 13.x ppa for apt repo"
+  apt_repository:
+    repo: deb https://deb.nodesource.com/node_13.x bionic main
+    update_cache: yes
+
+- name: "Install nodejs"
+  apt:
+    update_cache: yes
+    name: nodejs
+    state: present
     
     # npm install
     # pm2 stop default
