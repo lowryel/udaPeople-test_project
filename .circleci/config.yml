@@ -373,7 +373,7 @@ jobs:
       - run: 
           name: Install dependences (Nodejs13x and NPM)
           command: |
-            apk add --upgrade nodejs13.8.0 npm
+            apk add --upgrade nodejs npm
             # apk add --update 
       - run:
           name: Install dependencies (python)
@@ -391,7 +391,6 @@ jobs:
             cd ..
             tar -C backend -czvf artifact.tar.gz .
             echo "Contents of the inventory file is ..."
-            cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
 
       - slack/notify:
