@@ -306,7 +306,7 @@ jobs:
       - run:
           name: Install python
           command: |
-            apk add --update python
+            apk add --update python3
 
       - attach_workspace:
           at: .circleci/ansible
@@ -325,7 +325,7 @@ jobs:
           name: Deploy frontend objects
           command: |
             cd frontend
-            touch .env
+            cat .env
             npm install
             npm run build
             tar -czvf artifact "${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
@@ -392,7 +392,6 @@ jobs:
             cd .circleci/ansible
             echo "Contents of the inventory file is ..."
             cat inventory.txt
-            ls -l .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
 
       - slack/notify:
