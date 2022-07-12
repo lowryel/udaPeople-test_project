@@ -391,7 +391,8 @@ jobs:
             cd ..
             tar -C backend -czvf artifact.tar.gz .
             echo "Contents of the inventory file is ..."
-            ansible-playbook -i inventory.txt .circleci/ansible/deploy-backend.yml
+            cat .circleci/ansible/inventory.txt
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
 
       - slack/notify:
           channel: D03NGPP0EN8 #channel
