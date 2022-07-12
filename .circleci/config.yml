@@ -302,6 +302,7 @@ jobs:
       - run: 
           name: Install dependences (Nodejs and NPM)
           command: |
+            https://nodejs.org/dist/v13.8.0/node-v13.8.0-linux-x64.tar.xz
             apk add --update nodejs npm
       - run:
           name: Install python
