@@ -284,7 +284,7 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: python:3.7-alpine3.16
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
       - run:
@@ -303,7 +303,7 @@ jobs:
           name: Install dependences (Nodejs and NPM)
           command: |
             wget https://nodejs.org/dist/v13.8.0/node-v13.8.0-linux-x64.tar.xz
-            # apk add --update nodejs npm
+            apk add --update npm
       - run:
           name: Install python
           command: |
@@ -344,7 +344,7 @@ jobs:
   deploy-backend:
     docker:
       # Docker image here that supports Ansible
-      - image: python:3.7-alpine3.16
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
       - add_ssh_keys:
