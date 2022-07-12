@@ -371,9 +371,9 @@ jobs:
             apk add --update git # Install git
 
       - run: 
-          name: Install dependences (Nodejs and NPM)
+          name: Install dependences (Nodejs13x and NPM)
           command: |
-            apk add --upgrade nodejs npm
+            apk add --upgrade nodejs13 npm
             # apk add --update 
       - run:
           name: Install dependencies (python)
