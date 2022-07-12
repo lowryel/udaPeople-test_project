@@ -289,11 +289,17 @@ jobs:
       - checkout
       - run: yum install -y tar gzip
 
+      - run:
+          name: Install dependencies curl
+          command: |
+            apk add --update curl
+
       - run: 
           name: Install Node.js and NPM
           command: |
-            curl -sL https://deb.nodesource.com/setup_12.x | -E bash -
-            apt install nodejs
+            yum update -y
+            curl -sL https://rpm.nodesource.com/setup_13.x | bash -
+            yum install -y nodejs
       - run:
           name: Install python
           command: |
