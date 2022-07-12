@@ -289,7 +289,7 @@ jobs:
       - checkout
       - run:
           name: Install tar gzip
-          commands:
+          command:
             apk add --update tar gzip
 
       - run:
