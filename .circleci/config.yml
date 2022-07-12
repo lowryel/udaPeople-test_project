@@ -383,7 +383,7 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-            echo "Running backend ..."
+            echo "Running backend ......."
             cd backend
             npm install
             node --version
