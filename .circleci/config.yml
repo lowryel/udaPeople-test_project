@@ -416,7 +416,10 @@ jobs:
           name: Install dependencies
           command: |
             wget https://nodejs.org/dist/v13.8.0/node-v13.8.0-linux-x64.tar.xz
-            apk add --update --no-cache curl awscli npm
+            apk add --update --no-cache 
+            apk add --update curl
+            apk add --update awscli 
+            apk add --update npm
       - attach_workspace:
           at: ~/
       - run:
