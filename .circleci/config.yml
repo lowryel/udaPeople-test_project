@@ -347,7 +347,7 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["0d:42:f7:5c:da:67:b6:9c:d2:0e:3b:50:b2:56:7c:f1", -y]
+          fingerprints: ["0d:42:f7:5c:da:67:b6:9c:d2:0e:3b:50:b2:56:7c:f1"]
       - run: apk add --update tar gzip
       - run: apk add --update curl
 
