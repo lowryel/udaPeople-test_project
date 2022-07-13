@@ -411,12 +411,12 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
+      - run: yum install -y tar gzip
       - run:
           name: Install dependencies
           command: |
             wget https://nodejs.org/dist/v13.8.0/node-v13.8.0-linux-x64.tar.xz
-            apk add --update --no-cache curl aws-cli npm
-      - run: yum install -y tar gzip
+            apk add --update --no-cache curl awscli npm
       - attach_workspace:
           at: ~/
       - run:
