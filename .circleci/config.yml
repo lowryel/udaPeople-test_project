@@ -411,7 +411,7 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
-      - run: yum install -y tar gzip
+      - run: apk add --update tar gzip
       - run:
           name: Install dependencies
           command: |
