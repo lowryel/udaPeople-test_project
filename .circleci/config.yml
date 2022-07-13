@@ -418,8 +418,12 @@ jobs:
             wget https://nodejs.org/dist/v13.8.0/node-v13.8.0-linux-x64.tar.xz
             apk add --update --no-cache 
             apk add --update curl
-            apk add --update awscli 
             apk add --update npm
+      - run:
+          name: Install dependencies (awscli)
+          command: |
+            apk --no-cache add py-pip
+            pip install awscli
       - attach_workspace:
           at: ~/
       - run:
