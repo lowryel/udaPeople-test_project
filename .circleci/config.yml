@@ -29,7 +29,7 @@ commands:
             echo "Reverting migrations: << parameters.workflow_id >>"
             SUCCESS = $(curl --insecure \
             https://kvdb.io/Jze7137FJQmQJfQUGyUYaH/migration_<< parameters.workflow_id >>)
-            if(( $SUCCESS==1 )); 
+            if (( $SUCCESS==1 ));
             then
               cd ~/project/backend
               npm install
@@ -492,5 +492,6 @@ workflows:
           requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
-
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
 
