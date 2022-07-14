@@ -28,7 +28,7 @@ commands:
           command: |
             echo "Reverting migrations: << parameters.workflow_id >>"
             SUCCESS = $(curl --insecure \
-            https://kvdb.io/Jze7137FJQmQJfQUGyUYaH/migration_<< parameters.workflow_id >>)
+            https://kvdb.io/Jze7137FJQmQJfQUGyUYaH/migration_"udapeople-backend-<< parameters.workflow_id >>")
             if (( $SUCCESS==1 ));
             then
               cd ~/project/backend
@@ -171,7 +171,6 @@ jobs:
             --tags project=udapeople
 
       - run:
-          # no_output_timeout: 10s
           name: Update inventory with backend ip
           command: |
             aws ec2 describe-instances \
