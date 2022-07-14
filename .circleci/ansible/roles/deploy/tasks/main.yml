@@ -37,6 +37,7 @@
     update_cache: yes
     name: nodejs
     state: present
+    
 - name: "Install NPM"
   apt:
     name:
