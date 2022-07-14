@@ -503,7 +503,8 @@ jobs:
             echo Current Workflow ID: "${CIRCLE_WORKFLOW_ID:0:7}"
       - persist_to_workspace:
           root: ~/
-          paths: OldWorkflowID.txt
+          paths: 
+            - OldWorkflowID.txt
 
   cleanup:
     docker:
