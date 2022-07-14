@@ -391,10 +391,7 @@ jobs:
           command: |
             echo "Running backend ---"
             cd backend
-            npm cache clean --force
-            rm -rf node_modules
             npm i
-            npm install
             npm run build
             cd ..
             tar -C backend -czvf artifact.tar.gz .
@@ -517,7 +514,7 @@ jobs:
       - run: yum install -y tar gzip
       - attach_workspace:
           at: ~/
-          
+
       - run:
           name: Get old stack workflow id
           command: |
