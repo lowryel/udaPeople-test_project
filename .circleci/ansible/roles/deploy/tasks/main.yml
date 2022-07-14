@@ -14,13 +14,6 @@
   apt:
     autoremove: yes
 
-- name: "Install Node.js and NPM"
-  apt:
-    name:
-      - "npm"
-    state: present
-    update_cache: yes
-
 - name: "Install pm2"
   become: true
   npm:
@@ -44,4 +37,16 @@
     update_cache: yes
     name: nodejs
     state: present
+- name: "Install NPM"
+  apt:
+    name:
+      - "npm"
+    state: present
+    update_cache: yes
 
+- name: "install n"
+  become: true
+  npm:
+    name: n
+    global: yes
+    production: yes
