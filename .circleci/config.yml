@@ -26,10 +26,8 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            echo "Reverting migrations: << parameters.workflow_id >>"
-            SUCCESS = $(curl --insecure \
-            https://kvdb.io/Jze7137FJQmQJfQUGyUYaH/migration_<< parameters.workflow_id >>)
-            if (( $SUCCESS==1 ));
+            SUCCESS=$(curl --insecure  https://kvdb.io/Jze7137FJQmQJfQUGyUYaH/migration_<< parameters.workflow_id >>)
+            if(( $SUCCESS==1 )); 
             then
               cd ~/project/backend
               npm install
@@ -263,6 +261,7 @@ jobs:
           command: |
             cd backend
             npm install
+            npm audit fix
             npm run migrations > migrations_dump.txt
       - run:
           name: Send migration results to kvdb-backend
@@ -434,7 +433,7 @@ jobs:
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --output text)
+            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
@@ -456,8 +455,8 @@ jobs:
             else
               return 1
             fi
-      # - destroy_environment:
-      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy_environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert_migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
@@ -485,18 +484,18 @@ jobs:
           command: |
             # your code here
       - run:
-          name: Fetch and save the old pipeline ID (bucket name) responsible for the last release.
+          name: Fetch and save the old workflow ID (bucket name) responsible for the last release.
           command: |
             export OldWorkflowID=$(aws cloudformation \
-            list-exports --query "Exports[?Name==\`PipelineID\`].Value" \
+            list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
             --no-paginate --output text)
 
             echo $OldWorkflowID >> ~/OldWorkflowID.txt
-            cat ~/OldWorkflowID.txt
+            # cat ~/OldWorkflowID.txt
 
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
-              --stack-name "udapeople-Oldfront-${OldWorkflowID}" \
+              --stack-name "udapeople-${OldWorkflowID}" \
               --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=udapeople
 
@@ -518,10 +517,7 @@ jobs:
       - run:
           name: Get old stack workflow id
           command: |
-            # Fetch the Old workflow ID
-            export OldWorkflowID=$(aws cloudformation \
-              list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-              --no-paginate --output text)
+            export OldWorkflowID= $(cat ~/OldWorkflowID.txt)
 
             echo OldWorkflowID: "${OldWorkflowID}"
             echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
@@ -529,8 +525,6 @@ jobs:
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
               --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
             echo Stack names: "${STACKS[@]}"
-            # export OldWorkflowID="${OldWorkflowID}"
-            # export STACKS=[] #put the list of stacks here
       - run:
           name: Remove old stacks and files
           command: |
