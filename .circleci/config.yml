@@ -389,6 +389,7 @@ jobs:
             npm cache clean --force
             rm -rf node_modules
             npm i
+            npm install
             npm run build
             cd ..
             tar -C backend -czvf artifact.tar.gz .
