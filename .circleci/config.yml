@@ -462,79 +462,63 @@ jobs:
 
   cloudfront-update:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: amazon/aws-cli
     steps:
       - checkout
-      - run: apk add --update tar gzip
-      - run:
-          name: Install dependencies
-          command: |
-            wget https://nodejs.org/dist/v13.8.0/node-v13.8.0-linux-x64.tar.xz
-            apk add --update --no-cache 
-            apk add --update curl
-            apk add --update npm
-      - run:
-          name: Install dependencies (awscli)
-          command: |
-            apk --no-cache add py-pip
-            pip install awscli
-      - run:
-          name: Update cloudfront distribution
-          command: |
-            # your code here
       - run:
           name: Fetch and save the old workflow ID (bucket name) responsible for the last release.
           command: |
-            export OldWorkflowID=$(aws cloudformation \
+            export OldBucketID=$(aws cloudformation \
             list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
             --no-paginate --output text)
 
-            echo $OldWorkflowID >> ~/OldWorkflowID.txt
-            # cat ~/OldWorkflowID.txt
+            # Get old cloudfront ID
+            export OldFrontStack=$(aws cloudfront \
+            list-distributions --query "DistributionList.Items[*].Id" \
+            --output text)
+            echo $OldFrontStack >> ~/OldFrontStack.txt
+            cat ~/OldFrontStack.txt
 
+            echo $OldBucketID >> ~/OldBucketID.txt
+            cat "OLD:" ~/OldBucketID.txt
+      - run:
+          name: Update cloudfront distribution
+          command: |
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
-              --stack-name "udapeople-${OldWorkflowID}" \
+              --stack-name "udapeople-${OldFrontStack}" \
               --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=udapeople
 
-            echo OldWorkflowID: "${OldWorkflowID}"
+            echo OldBucketID: "${OldBucketID}"
             echo Current Workflow ID: "${CIRCLE_WORKFLOW_ID:0:7}"
-      - persist_to_workspace:
-          root: ~/
-          paths: 
-            - OldWorkflowID.txt
 
   cleanup:
     docker:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - run: yum install -y tar gzip
-      - attach_workspace:
-          at: ~/
-
       - run:
           name: Get old stack workflow id
           command: |
-            export OldWorkflowID= $(cat ~/OldWorkflowID.txt)
-
+            # Fetch the Old workflow ID
+            export OldWorkflowID=$(aws cloudformation \
+              list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+              --no-paginate --output text)
             echo OldWorkflowID: "${OldWorkflowID}"
             echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
             # Fetch the stack names          
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-              --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
-            echo Stack names: "${STACKS[@]}"
+                    --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+            echo Stack names: "${STACKS[@]}"    
       - run:
           name: Remove old stacks and files
           command: |
-            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
+            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
-              aws s3 rm "s3://${OldWorkflowID}" --recursive
+              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
-            else
-              echo "-------cannot cleanup------------"
             fi
 
       # Here's where you will add some code to rollback on failure  
@@ -583,10 +567,10 @@ workflows:
           requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
-          requires: [smoke-test]
-      - cleanup:
-          requires: [cloudfront-update]
+      # - smoke-test:
+      #     requires: [deploy-backend, deploy-frontend]
+      - cloudfront-update
+          # requires: [smoke-test]
+      - cleanup
+          # requires: [cloudfront-update]
 
