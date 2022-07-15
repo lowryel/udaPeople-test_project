@@ -54,7 +54,7 @@
 
 # - name: "Extract backend into remote directory"
 #   ansible.builtin.unarchive:
-#     src: backend/artifact.tar.gz
+#     src: artifact.tar.gz
 #     dest: ~/
 #     remote_src: true
 
