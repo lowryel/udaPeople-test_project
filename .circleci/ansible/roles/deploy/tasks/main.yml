@@ -54,8 +54,9 @@
 
 - name: "Extract backend into remote directory"
   ansible.builtin.unarchive:
-    src: artifact.tar.gz
+    src: backend/artifact.tar.gz
     dest: ~/
+    remote_src: true
 
     shell:
       npm install
