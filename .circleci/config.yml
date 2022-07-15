@@ -477,7 +477,7 @@ jobs:
             aws cloudformation deploy \
             --template-file .circleci/files/cloudfront.yml \
             --stack-name "updated-${OldDistributionID}" \
-            --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
+            --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
             --tags project=udapeople
 
   cleanup:
@@ -505,25 +505,7 @@ jobs:
               aws s3 rm "s3://${OldWorkflowID}" --recursive
               aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
-            fi
-
-      # Here's where you will add some code to rollback on failure  
-
-      # - run: apk add --update curl
-      # - run:
-      #     command: |
-      #       # Your code here
-      #       if curl -s --head $(cat ~/.circleci/ansible/inventory.txt)
-      #       then
-      #         echo "Front-end is up"
-      #       else
-      #         echo "Front-end is down"
-      #       fi
-      #         # exit 1
-      # 
-      # - destroy_environent
-    
-                  
+            fi                  
 
 workflows:
   my-workflow:
