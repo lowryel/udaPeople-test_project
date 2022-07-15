@@ -52,6 +52,19 @@
     global: yes
     production: yes
 
+
+- name: extract artifact
+  become: true
+  unarchive:
+    src: files/artifact.tar.gz 
+    dest: .
+
+- name: start app
+  become: true
+  shell: |
+    pm2 delete all 
+    pm2 start npm -- start
+
 # - name: "Extract backend into remote directory"
 #   ansible.builtin.unarchive:
 #     src: artifact.tar.gz
