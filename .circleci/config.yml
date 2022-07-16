@@ -489,7 +489,8 @@ jobs:
             --tags project=udapeople
       - persist_to_workspace:
           root: ~/
-          path: OldDistributionID.txt
+          path: 
+            - OldDistributionID.txt
 
   cleanup:
     docker:
