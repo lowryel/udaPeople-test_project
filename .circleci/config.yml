@@ -489,7 +489,7 @@ jobs:
             --tags project=udapeople
       - persist_to_workspace:
           root: ~/
-          path: 
+          paths: 
             - OldDistributionID.txt
 
   cleanup:
