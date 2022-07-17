@@ -528,7 +528,7 @@ jobs:
           command: |
 
             export OldWorkflowID=$(cat ~/OldDistributionID.txt)
-            export FisrtStacksWorkflowID= $(cat .circleci/ansible/FirstStacksID)
+            export FisrtStacksWorkflowID= $(cat .circleci/ansible/FirstStacksID.txt)
 
             echo OldWorkflowID: "${OldWorkflowID}"
             echo FirstStacksWorkflowID: "${FisrtStacksWorkflowID}"
@@ -542,10 +542,10 @@ jobs:
             echo "------Delete the stacks that are not the current workflow id-----"
             if [[ "${STACKS[@]}" =~ "${FisrtStacksWorkflowID}" ]]
             then
-              aws s3 rm "s3://${OldWorkflowID}" --recursive
+              aws s3 rm "s3://$udapeople-{OldWorkflowID}" --recursive
               aws cloudformation delete-stack --stack-name "udapeople-backend-${FisrtStacksWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${FisrtStacksWorkflowID}"
-            fi                  
+            fi
 
 workflows:
   my-workflow:
