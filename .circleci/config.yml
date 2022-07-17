@@ -585,8 +585,6 @@ workflows:
           #     only: [test-feature-branch]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
-      - prometheus-server:
-          requires: [configure-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
       - deploy-frontend:
