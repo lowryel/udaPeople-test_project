@@ -26,7 +26,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS=$(curl --insecure  https://kvdb.io/Jze7137FJQmQJfQUGyUYaH/migration_<< parameters.workflow_id >>)
+            SUCCESS=$(curl --insecure https://kvdb.io/5VTSwCY8fG5ZvazoY3Fss2/migration_<< parameters.workflow_id >>)
             if(( $SUCCESS==1 )); 
             then
               cd ~/project/backend
@@ -266,7 +266,7 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              curl --insecure https://kvdb.io/Jze7137FJQmQJfQUGyUYaH/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+              curl --insecure https://kvdb.io/5VTSwCY8fG5ZvazoY3Fss2/migration_$\{CIRCLE_WORKFLOW_ID:0:7\}  -d '1'
             fi
       - persist_to_workspace:
           root: ~/
@@ -520,10 +520,10 @@ jobs:
             echo OldWorkflowID: "${OldWorkflowID}"
             echo CIRCLE_WORKFLOW_ID: "${CIRCLE_WORKFLOW_ID:0:7}"
 
-            # Fetch the stack names          
-            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-                    --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
-            echo Stack names: "${STACKS[@]}"  
+            echo "-----------------Fetch the stack names----------------------"        
+            export STACKS=$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+                    --stack-status-filter CREATE_COMPLETE --no-paginate --output text)
+            echo Stack names: "${STACKS[@]}"
 
             echo "------Delete the stacks that are not the current workflow id-----"
             if [[ "${STACKS[@]}" =~ "${FirstStacksWorkflowID}" ]]
@@ -531,6 +531,8 @@ jobs:
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+            else
+              echo "No stacks to delete"
             fi
       - destroy_environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
