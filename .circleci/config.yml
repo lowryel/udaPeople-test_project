@@ -586,7 +586,7 @@ workflows:
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - prometheus-server:
-          requires: [deploy-infrastructure]
+          requires: [configure-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
       - deploy-frontend:
