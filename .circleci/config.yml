@@ -233,8 +233,9 @@ jobs:
             apk add --update tar gzip
 
       - run:
-          name: Run your playbook to configure server
+          name: Run your playbook to configure server and install node exporter
           command: |
+            wget https://github.com/prometheus/node_exporter/releases/download/v0.17.0/node_exporter-0.17.0.linux-amd64.tar.gz
             cd .circleci/ansible
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
@@ -470,6 +471,16 @@ jobs:
           command: |
             apk --no-cache add py-pip
             pip install awscli
+      
+      - run:
+          name: Get S3 bucket name for Cleanup job
+          command: |
+            export S3_BUCKET_NAME=$(aws s3api list-buckets \
+            --query 'Buckets[*].Name' \
+            --output text)
+            echo "S3_BUCKET_NAME=${S3_BUCKET_NAME}"
+            echo S3_BUCKET_NAME="${S3_BUCKET_NAME}" >> ~/initial-bucket.txt
+            cat ~/initial-bucket.txt
       - run:
           name: Update cloudfront distribution
           command: |
@@ -478,9 +489,6 @@ jobs:
             --no-paginate --output text)
             echo $OldDistributionID >> ~/OldDistributionID.txt
             cat ~/OldDistributionID.txt
-            echo $OldWorkflowID111: "${CIRCLE_WORKFLOW_ID:0:7}"
-            echo ${CIRCLE_WORKFLOW_ID} >> ~/OldWorkflowID111.txt
-            cat ~/OldWorkflowID111.txt
 
             aws cloudformation deploy \
             --template-file .circleci/files/cloudfront.yml \
@@ -494,7 +502,7 @@ jobs:
           root: ~/
           paths: 
             - OldDistributionID.txt
-            - OldWorkflowID111.txt
+            - initial-bucket.txt
 
   cleanup:
     docker:
@@ -516,19 +524,17 @@ jobs:
           command: |
 
             export OldWorkflowID=$(cat ~/OldDistributionID.txt)
+            export BucketID=$(cat ~/initial-bucket.txt)
 
             echo OldWorkflowID: "${OldWorkflowID}"
+            echo InitialBucket: "${BucketID}"
             echo CIRCLE_WORKFLOW_ID: "${CIRCLE_WORKFLOW_ID:0:7}"
 
-            echo "-----------------Fetch the stack names----------------------"        
-            # export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-            #         --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
-            # echo Stack names: "${STACKS[@]}"
 
             echo "------Delete the stacks that are not the current workflow id-----"
             if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
             then
-              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+              aws s3 rm "s3://${BucketID}" --recursive
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
             else
