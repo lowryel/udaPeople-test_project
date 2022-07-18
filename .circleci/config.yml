@@ -442,6 +442,21 @@ jobs:
             else
                 return 1
             fi
+
+      - run:
+          name: Get S3 bucket name for Cleanup job
+          command: |
+            export S3_BUCKET_NAME=$(aws s3api list-buckets \
+            --query 'Buckets[*].Name' \
+            --output text)
+            echo "S3_BUCKET_NAME=${S3_BUCKET_NAME}"
+            echo ${S3_BUCKET_NAME} >> ~/initial-bucket.txt
+            cat ~/initial-bucket.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - initial-bucket.txt
+
       - run:
           name: Frontend smoke test.
           command: |
@@ -472,15 +487,15 @@ jobs:
             apk --no-cache add py-pip
             pip install awscli
       
-      - run:
-          name: Get S3 bucket name for Cleanup job
-          command: |
-            export S3_BUCKET_NAME=$(aws s3api list-buckets \
-            --query 'Buckets[*].Name' \
-            --output text)
-            echo "S3_BUCKET_NAME=${S3_BUCKET_NAME}"
-            echo S3_BUCKET_NAME="${S3_BUCKET_NAME}" >> ~/initial-bucket.txt
-            cat ~/initial-bucket.txt
+      # - run:
+      #     name: Get S3 bucket name for Cleanup job
+      #     command: |
+      #       export S3_BUCKET_NAME=$(aws s3api list-buckets \
+      #       --query 'Buckets[*].Name' \
+      #       --output text)
+      #       echo "S3_BUCKET_NAME=${S3_BUCKET_NAME}"
+      #       echo ${S3_BUCKET_NAME} >> ~/initial-bucket.txt
+      #       cat ~/initial-bucket.txt
       - run:
           name: Update cloudfront distribution
           command: |
@@ -502,7 +517,6 @@ jobs:
           root: ~/
           paths: 
             - OldDistributionID.txt
-            - initial-bucket.txt
 
   cleanup:
     docker:
