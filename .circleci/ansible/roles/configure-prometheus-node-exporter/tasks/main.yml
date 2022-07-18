@@ -4,19 +4,29 @@
     dest: /tmp
     remote_src: yes
 
+# Eze Code
 - name: "move binary to /usr/local/bin."
   become: true
-  copy:
-    src: /tmp/node_exporter-0.17.0.linux-amd64/node_exporter
-    dest: /usr/local/bin/node_exporter
-    remote_src: yes
-    mode: '0777'
-    
+  shell: |
+    wget https://github.com/prometheus/node_exporter/releases/download/v1.0.1/node_exporter-1.0.1.linux-amd64.tar.gz
+    tar xzf node_exporter-1.0.1.linux-amd64.tar.gz
+    sudo cp node_exporter-1.0.1.linux-amd64/node_exporter /usr/local/bin/node_exporter
+    rm -rf node_exporter-1.0.1.linux-amd64.tar.gz node_exporter-1.0.1.linux-amd64
+
 - name: "add node exporter configuration."
   become: true
   copy:
     src: node_exporter.service
-    dest: /etc/systemd/system/
+    dest: /etc/systemd/system/node-exporter.service
+
+- name: "enable node_exporter service"
+  become: true
+  shell: |
+    sudo systemctl daemon-reload
+    sudo systemctl enable node-exporter
+    sudo systemctl start node-exporter
+    sudo systemctl status node-exporter
+# Eze Code
 
 - name: "enable node_exporter service"
   become: true
@@ -26,19 +36,19 @@
     name: node_exporter
     enabled: yes
 
-- global:
-    scrape_interval: 15s
-    external_labels:
-      monitor: 'prometheus'
+# - global:
+#     scrape_interval: 15s
+#     external_labels:
+#       monitor: 'prometheus'
 
-- scrape_configs:
-    - job_name: 'prometheus'
-      static_configs:
-        - targets: ['localhost:9090']
+# - scrape_configs:
+#     - job_name: 'prometheus'
+#       static_configs:
+#         - targets: ['localhost:9090']
 
-    - job_name: 'node_exporter'
-      static_configs:
-        - targets: ['localhost:9100']
+#     - job_name: 'node_exporter'
+#       static_configs:
+#         - targets: ['localhost:9100']
 
     # - job_name: 'node'
     #   ec2_sd_configs:

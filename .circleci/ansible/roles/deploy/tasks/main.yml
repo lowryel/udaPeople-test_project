@@ -52,6 +52,10 @@
     global: yes
     production: yes
 
+# - name: Create app directory
+#   file:
+#     path: $HOME/web
+#     state: directory
 
 - name: extract artifact
   become: true
@@ -63,6 +67,7 @@
   become: true
   shell: |
     pm2 delete all 
+    pm2 stop default
     pm2 start npm -- start
 
 # - name: "Extract backend into remote directory"
@@ -70,7 +75,4 @@
 #     src: artifact.tar.gz
 #     dest: ~/
 #     remote_src: true
-
-    # pm2 stop default
-    # pm2 start npm -- start
     
