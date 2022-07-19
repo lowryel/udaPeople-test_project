@@ -24,7 +24,7 @@
     dest: /etc/systemd/system/alertmanager.service
 
 
-- name: "add alert manager alertmanager configuration"
+- name: "add alert manager to alertmanager configuration"
   become: true
   copy:
     src: alertmanager.yml
