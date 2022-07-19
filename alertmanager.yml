@@ -1,0 +1,13 @@
+route:
+  group_by: [Alertname]
+  receiver: email-me
+
+receivers:
+- name: email-me
+  email_configs:
+  - to: ellowry09@gmail.com
+    from: eugeneagbaglo@gmail.com
+    smarthost: smtp.gmail.com:587
+    auth_username: eugeneagbaglo@gmail.com
+    auth_identity: eugeneagbaglo@gmail.com
+    auth_password: wcbstafftzubrgug
