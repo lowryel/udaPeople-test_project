@@ -24,18 +24,11 @@
     dest: /etc/systemd/system/alertmanager.service
 
 
-- name: "add alert manager to alertmanager configuration"
-  become: true
-  copy:
-    src: alertmanager.yml
-    dest: /etc/prometheus/alertmanager.yml
-
-
-- name: "add rules configuration to prometheus"
-  become: true
-  copy:
-    src: rules.yml
-    dest: /etc/prometheus/rules.yml
+# - name: "add rules configuration to prometheus"
+#   become: true
+#   copy:
+#     src: rules.yml
+#     dest: /etc/prometheus/rules.yml
 
 
 - name: "enable alert manager service"
