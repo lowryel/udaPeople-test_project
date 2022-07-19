@@ -28,7 +28,6 @@
   environment:
     # Add more env vars here
     - NODE_ENV: production
-    - ENVIRONMENT: production
     - TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION')}}"
     - TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST')}}"
     - TYPEORM_PORT: 5432
@@ -42,4 +41,5 @@
   roles:
     - deploy
     - configure-prometheus-node-exporter
+    - configure-prometheus-alert-manager
 

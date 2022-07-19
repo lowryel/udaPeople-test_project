@@ -3,10 +3,10 @@ groups:
   rules:
   - alert: InstanceDown
     expr: up == 0
-    for: 3m
+    for: 1m
     labels:
       severity: 'critical'
     annotations:
       summary: "Instance  is down"
-      description: " of job  has been down for more than 3 minutes."
-      info: "Instance is down"
+      description: "Server instance of job  has been down for more than 1 minute."
+
