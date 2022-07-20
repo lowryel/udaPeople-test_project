@@ -31,6 +31,7 @@
 #     dest: /etc/prometheus/rules.yml
 
 
+
 - name: "enable alert manager service"
   become: true
   become_user: root

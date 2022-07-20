@@ -18,6 +18,20 @@
         timeout: 600
         delay: 1
 
+    - name: "Set Env vars"
+      shell: |
+        touch .env
+        echo NODE_ENV=production >> .env
+        echo VERSION=1 >> .env
+        echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> .env
+        echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> .env
+        echo TYPEORM_HOST=$TYPEORM_HOST >> .env
+        echo TYPEORM_PORT=$TYPEORM_PORT >> .env
+        echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> .env
+        echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> .env
+        echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> .env
+        echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> .env
+        echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> .env
 
     - name: "install python for Ansible."
       become: true
@@ -28,6 +42,7 @@
   environment:
     # Add more env vars here
     - NODE_ENV: production
+    - ENVIRONMENT: production
     - TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION')}}"
     - TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST')}}"
     - TYPEORM_PORT: 5432
