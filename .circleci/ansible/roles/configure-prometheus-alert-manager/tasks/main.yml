@@ -2,11 +2,8 @@
 - name: "install alert manager."
   become: true
   shell: |
-    mkdir alertmanager
-    cd alertmanager
     wget https://github.com/prometheus/alertmanager/releases/download/v0.23.0/alertmanager-0.23.0.linux-amd64.tar.gz
     tar xvzf alertmanager-0.23.0.linux-amd64.tar.gz
-    cd alertmanager-0.23.0.linux-amd64/
 
 - name: "move binary to /usr/local/bin."
   become: true
@@ -24,6 +21,11 @@
     src: alertmanager.service
     dest: /etc/systemd/system/alertmanager.service
 
+- name: "add rules file to prometheus"
+  become: true
+  copy:
+    src: rules.yml
+    dest: /etc/prometheus/rules.yml
 
 - name: "enable alert manager service"
   become: true
