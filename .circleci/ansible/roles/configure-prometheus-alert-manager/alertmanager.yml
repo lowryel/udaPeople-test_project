@@ -10,4 +10,4 @@ receivers:
     smarthost: smtp.gmail.com:587
     auth_username: eugeneagbaglo@gmail.com
     auth_identity: eugeneagbaglo@gmail.com
-    auth_password: wcbstafftzubrgug
+    # auth_password: wcbstafftzubrgug
