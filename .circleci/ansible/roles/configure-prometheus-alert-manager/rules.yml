@@ -7,7 +7,7 @@ groups:
     for: 1m
     labels:
       severity: page
-    annotations:
-      summary: "Instance {{ $labels.instance }} down"
-      description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minutes."
+    # annotations:
+    #   summary: "Instance {{ $labels.instance }} down"
+    #   description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minutes."
 
