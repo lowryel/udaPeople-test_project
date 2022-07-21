@@ -154,6 +154,12 @@ jobs:
       - checkout
       - run: yum install -y tar gzip
       - run:
+          name: Obtain initial bucketID for cleanup
+          command: |
+            # Your code here
+            bucketID=$(aws s3api list-buckets --query 'Buckets[].Name' --output text)
+            echo $bucketID >> ~/bucketID.txt
+      - run:
           name: Ensure back-end infrastructure exists
           command: |
             aws cloudformation deploy --template-file .circleci/files/backend.yml \
@@ -184,6 +190,11 @@ jobs:
           root: .circleci/ansible
           paths:
             - inventory.txt
+
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - bucketID.txt
 
       - slack/notify:
           channel: D03NGPP0EN8 #channel
@@ -333,23 +344,16 @@ jobs:
           fingerprints: ["2c:c7:3f:cf:05:37:cc:0c:fe:26:ba:6e:3a:a8:6e:31"]
       - run: apk add --update tar gzip
       - run: apk add --update curl
-
       - run:
-          name: Install dependencies (ansible)
+          name: Install dependencies (ansible and openssh)
           command: |
             apk add --update ansible
-      - run:
-          name: Install dependencies (openssh)
-          command: |
             apk add --update openssh
       - run:
-          name: Install dependencies (awscli)
+          name: Install dependencies (awscli and git)
           command: |
             apk --no-cache add py-pip
             pip install awscli
-      - run:
-          name: Install git
-          command: |
             apk add --update git
 
       - run: 
@@ -362,6 +366,7 @@ jobs:
           name: Install dependencies (python)
           command: |
             apk add --update python3
+            
       - attach_workspace:
           at: .circleci/ansible
       - run:
@@ -423,21 +428,6 @@ jobs:
             else
                 return 1
             fi
-
-      - run:
-          name: Get S3 bucket name for Cleanup job
-          command: |
-            export S3_BUCKET_NAME=$(aws s3api list-buckets \
-            --query 'Buckets[*].Name' \
-            --output text)
-            echo "S3_BUCKET_NAME=${S3_BUCKET_NAME}"
-            echo ${S3_BUCKET_NAME} >> ~/initial-bucket.txt
-            cat ~/initial-bucket.txt
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - initial-bucket.txt
-
       - run:
           name: Frontend smoke test.
           command: |
@@ -509,7 +499,7 @@ jobs:
           command: |
 
             export OldWorkflowID=$(cat ~/OldDistributionID.txt)
-            export BucketID=$(cat ~/initial-bucket.txt)
+            export BucketID=$(cat ~/bucketID.txt)
 
             echo OldWorkflowID: "${OldWorkflowID}"
             echo InitialBucket: "${BucketID}"
@@ -519,7 +509,7 @@ jobs:
             echo "------Delete the stacks that are not the current workflow id-----"
             if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
             then
-              # aws s3 rm "s3://${BucketID}" --recursive
+              aws s3 rm "s3://${BucketID}" --recursive
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
             else
