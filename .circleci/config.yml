@@ -482,7 +482,7 @@ jobs:
       - run: apk add --update tar gzip
       - attach_workspace:
           at: ~/
-          # from deploy infra and cloudfront update
+          # from deploy infrastructure and cloudfront update
       - run:
           name: Get old stack workflow id
           command: |
