@@ -1,78 +1,44 @@
 
-- name: "update apt packages"
+- name: Create app directory
+  file:
+    path: $HOME/web
+    state: directory
+
+- name: "Copy files to server"
+  ansible.builtin.copy:
+    src: "files/artifact.tar.gz"
+    dest: "$HOME/artifact.tar.gz"
+    follow: yes
+
+- name: "install dependencies."
   become: true
-  apt:
-    update_cache: yes
-
-- name: "upgrade packages"
-  become: true
-  apt:
-    upgrade: yes
-
-- name: "Remove some dependences that are not required"
-  become: true
-  apt:
-    autoremove: yes
-
-- name: "Install pm2"
-  become: true
-  npm:
-    name: pm2
-    global: yes
-    production: yes
-    state: latest
-
-- name: "Add nodejs apt key"
-  apt_key:
-    url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
-    state: present
-
-- name: "Add nodejs 13.x ppa for apt repo"
-  apt_repository:
-    repo: deb https://deb.nodesource.com/node_13.x bionic main
-    update_cache: yes
-
-- name: "Install nodejs"
-  apt:
-    update_cache: yes
-    name: nodejs
-    state: present
-    
-- name: "Install NPM"
   apt:
     name:
-      - "npm"
-    state: present
+      - nodejs
+      - npm
+    state: latest
     update_cache: yes
 
-- name: "install n"
+- name: "Install Dependencies"
   become: true
-  npm:
-    name: n
-    global: yes
-    production: yes
+  shell: |
+    tar -xvf artifact.tar.gz .
+    rm artifact.tar.gz
+    npm install
 
 # - name: Create app directory
 #   file:
 #     path: $HOME/web
 #     state: directory
 
-- name: extract artifact
-  become: true
-  unarchive:
-    src: files/artifact.tar.gz 
-    dest: .
+# - name: extract artifact
+#   become: true
+#   unarchive:
+#     src: files/artifact.tar.gz 
+#     dest: .
 
 - name: start app
   become: true
   shell: |
-    pm2 delete all 
-    pm2 stop default
-    pm2 start npm -- start
-
-# - name: "Extract backend into remote directory"
-#   ansible.builtin.unarchive:
-#     src: artifact.tar.gz
-#     dest: ~/
-#     remote_src: true
-    
+    sudo pm2 stop default
+    sudo pm2 start npm -- run start
