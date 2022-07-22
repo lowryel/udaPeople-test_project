@@ -376,7 +376,6 @@ jobs:
             cd backend
             npm install --legacy-peer-deps
             npm run build
-            rm -rf node_modules
             cd ..
             tar -C backend -czvf artifact.tar.gz .
             mkdir -p ~/project/.circleci/ansible/roles/deploy/files/ 
