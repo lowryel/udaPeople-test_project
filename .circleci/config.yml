@@ -364,7 +364,7 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-            echo "Running backend ---"
+            echo "Running backend -----"
             cd backend
             npm install --legacy-peer-deps
             npm run build
